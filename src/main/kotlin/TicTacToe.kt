@@ -275,5 +275,4 @@ object TicTacToe {
 
 fun main() {
     TicTacToe.game()
-
 }
