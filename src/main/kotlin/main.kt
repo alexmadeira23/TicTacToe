@@ -4,12 +4,13 @@ import kotlin.system.exitProcess
  * TicTacToe
  * Author: Alexandre Madeira
  * Description: Console-based TicTacToe where you can play with different-sized boards based on the value of N.
+ * The value of N must be between 3 and 30. (You're a real mad lad if you play 30)
  */
 
-const val N = 4 //Has to be between 3 and 30.
-const val GAME_SIZE = N * N
-const val playedX = "  X  "
-const val playedO = "  O  "
+var n = 3 //Has to be between 3 and 30.
+var gameSize = n * n
+const val PLAYED_X = "  X  "
+const val PLAYED_O = "  O  "
 
 /**
  * Obtains the value of the given spot.
@@ -38,7 +39,7 @@ fun getSpot(n: Int): String {
  */
 fun lineDivision(): String {
     var str = "-----"
-    repeat(6 * N - 6) {
+    repeat(6 * n - 6) {
         str += "-"
     }
     return str
@@ -49,7 +50,7 @@ fun lineDivision(): String {
  */
 fun gameDivision() {
     var str = "====="
-    repeat(6 * N - 6) {
+    repeat(6 * n - 6) {
         str += "="
     }
     str += str
@@ -62,19 +63,19 @@ fun gameDivision() {
  */
 fun printGame(game: HashMap<Int, String>) {
     var i = 1
-    while (i <= GAME_SIZE) {
+    while (i <= gameSize) {
         when {
-            (i - 1) % N == 0 -> {
+            (i - 1) % n == 0 -> {
                 print("${getValue(game, i)}|")
                 i++
             }
-            i < GAME_SIZE && i % N == 0 -> {
+            i < gameSize && i % n == 0 -> {
                 print(getValue(game, i))
                 println()
                 println(lineDivision())
                 i++
             }
-            i == GAME_SIZE -> {
+            i == gameSize -> {
                 print(getValue(game, i))
                 println("")
                 break
@@ -90,7 +91,7 @@ fun printGame(game: HashMap<Int, String>) {
 /**
  * Obtains a clear game.
  */
-fun clearGame() = HashMap<Int, String>(GAME_SIZE)
+fun clearGame() = HashMap<Int, String>(gameSize)
 
 /**
  * Obtains the spot the player wants to choose.
@@ -100,7 +101,7 @@ fun clearGame() = HashMap<Int, String>(GAME_SIZE)
 fun getSpot(game: HashMap<Int, String>): Int {
     while (true) {
         val read = readLine()!!.toIntOrNull()
-        if (read != null && read >= 1 && read <= GAME_SIZE && !game.containsKey(read.toInt())) {
+        if (read != null && read >= 1 && read <= gameSize && !game.containsKey(read.toInt())) {
             return read.toInt()
         }
         println("Invalid spot. Try again.")
@@ -118,8 +119,8 @@ fun checkWin(game: HashMap<Int, String>, spot: Int, fig: String): Boolean {
     return when {
         checkColumn(game, spot, fig) -> { println("Column detected."); true }
         checkLine(game, spot, fig) -> { println("Line detected."); true }
-        checkDiag(game, fig) -> { println("Diagonal detected."); true }
-        checkAntiDiag(game, fig) -> { println("Anti-diagonal detected."); true }
+        checkDiagonal(game, fig) -> { println("Diagonal detected."); true }
+        checkAntiDiagonal(game, fig) -> { println("Anti-diagonal detected."); true }
         else -> false
     }
 }
@@ -130,7 +131,7 @@ fun checkWin(game: HashMap<Int, String>, spot: Int, fig: String): Boolean {
  * @return Weather there has been a draw.
  */
 fun checkDraw(count: Int): Boolean {
-    if (count == GAME_SIZE) return true
+    if (count == gameSize) return true
     return false
 }
 
@@ -143,13 +144,13 @@ fun checkDraw(count: Int): Boolean {
  */
 fun checkColumn(game: HashMap<Int, String>, spot: Int, fig: String): Boolean {
     var first = spot
-    while (first - N > 0) first -= N
+    while (first - n > 0) first -= n
     var last = spot
-    while (last + N <= GAME_SIZE) last += N
+    while (last + n <= gameSize) last += n
     var i = first
     while (i <= last) {
         if (game[i] != fig) return false
-        i += N
+        i += n
     }
     return true
 }
@@ -163,9 +164,9 @@ fun checkColumn(game: HashMap<Int, String>, spot: Int, fig: String): Boolean {
  */
 fun checkLine(game: HashMap<Int, String>, spot: Int, fig: String): Boolean {
     var first = spot
-    while ((first - 1) % N > 0) first--
+    while ((first - 1) % n > 0) first--
     var last = spot
-    while (last % N > 0) last++
+    while (last % n > 0) last++
     var i = first
     while (i <= last) {
         if (game[i] != fig) return false
@@ -180,11 +181,11 @@ fun checkLine(game: HashMap<Int, String>, spot: Int, fig: String): Boolean {
  * @param fig   The figure the player is using.
  * @return Weather the diagonal has a winning situation or not.
  */
-fun checkDiag(game: HashMap<Int, String>, fig: String): Boolean {
+fun checkDiagonal(game: HashMap<Int, String>, fig: String): Boolean {
     var i = 1
-    while (i <= GAME_SIZE) {
+    while (i <= gameSize) {
         if (game[i] != fig) return false
-        i += N + 1
+        i += n + 1
     }
     return true
 }
@@ -195,11 +196,11 @@ fun checkDiag(game: HashMap<Int, String>, fig: String): Boolean {
  * @param fig   The figure the player is using.
  * @return Weather the anti-diagonal has a winning situation or not.
  */
-fun checkAntiDiag(game: HashMap<Int, String>, fig: String): Boolean {
-    var i = N
-    while (i < GAME_SIZE) {
+fun checkAntiDiagonal(game: HashMap<Int, String>, fig: String): Boolean {
+    var i = n
+    while (i < gameSize) {
         if (game[i] != fig) return false
-        i += N - 1
+        i += n - 1
     }
     return true
 }
@@ -219,22 +220,27 @@ fun maybeStartNewGame() {
 }
 
 fun main() {
-    if (N < 3 || N > 30) {
-        println("Invalid game size.")
-        exitProcess(0)
-    }
     while (true) {
+        n = 3
+        println("Choose the size of the board (between 3 and 30).")
+        val read = readLine()!!.toIntOrNull()
+        if (read != null && read >= 3 && read <= 30) {
+            n = read
+            println("Starting a ${n}X${n} game...")
+        }
+        else println("Invalid size. Starting a default game...")
+        gameSize = n * n
         var count = 0 //Keep track of number of spots used.
         val game = clearGame()
         printGame(game)
         while (true) {
             println("Choose spot for 'X'")
             val xSpot = getSpot(game)
-            game[xSpot] = playedX
+            game[xSpot] = PLAYED_X
             count++
             gameDivision()
             printGame(game)
-            if (checkWin(game, xSpot, playedX)) {
+            if (checkWin(game, xSpot, PLAYED_X)) {
                 println("X wins.")
                 maybeStartNewGame()
                 break
@@ -246,11 +252,11 @@ fun main() {
             }
             println("Choose spot for 'O'")
             val oSpot = getSpot(game)
-            game[oSpot] = playedO
+            game[oSpot] = PLAYED_O
             count++
             gameDivision()
             printGame(game)
-            if (checkWin(game, xSpot, playedO)) {
+            if (checkWin(game, xSpot, PLAYED_O)) {
                 println("O wins.")
                 maybeStartNewGame()
                 break
