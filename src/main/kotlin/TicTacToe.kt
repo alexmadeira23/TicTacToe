@@ -3,7 +3,7 @@ import kotlin.system.exitProcess
 /**
  * TicTacToe
  * Author: Alexandre Madeira
- * Description: Console-based TicTacToe where you can play with different-sized boards based on the value of N.
+ * Description: Console-based 2-player TicTacToe where you can play with different-sized boards based on the value of N.
  * The value of N must be between 3 and 30. (You're a real mad lad if you play 30)
  */
 
